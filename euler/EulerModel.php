@@ -12,6 +12,7 @@ class EulerModel
     private int $prime;
     CONST POWER = 3;
 
+
     public function __construct(int $prime)
     {
         $this->prime = $prime;
