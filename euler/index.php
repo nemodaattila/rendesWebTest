@@ -1,5 +1,8 @@
 <?php
+namespace global;
+set_time_limit(0);
+
 namespace euler;
-require_once "EulerController.php";
-var_dump('teszt');
-$eu = new EulerController();
+require_once "EulerCounter.php";
+$eu = new EulerCounter();
+$eu->countSolutions();
