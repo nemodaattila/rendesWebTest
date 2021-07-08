@@ -12,6 +12,11 @@ class AllTeamRosters
 
     private array $rosters = [];
 
+    public function getATeamRoster(int $key)
+    {
+        return $this->rosters[$key];
+    }
+
     public function __construct()
     {
         $this->teamData = new TeamData();
@@ -24,8 +29,7 @@ class AllTeamRosters
         $this->calculator = new TeamRosterCalculator($minMax);
         foreach ($this->teamData->getTeams() as $index => $team)
         {
-
-            $this->rosters[$index]=new TeamRosters();
+            $this->rosters[$index]=new TeamRosters($team[0]);
             $this->addRoster($this->calculator->calculateTeam($this->rosters[$index], $team));
         }
     }
