@@ -16,7 +16,6 @@ class TeamRosterCalculator
     {
         $this->maxStatBonus = $minmax[1] - $minmax[0];
         $this->min = $minmax[0];
-        var_dump($this->maxStatBonus);
     }
 
     public function calculateTeam(TeamRosters $team, $teamData): TeamRosters

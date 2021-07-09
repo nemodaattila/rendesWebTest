@@ -12,6 +12,18 @@ class AllTeamRosters
 
     private array $rosters = [];
 
+    private static ?AllTeamRosters $instance=null;
+
+    public static function getInstance(): AllTeamRosters
+    {
+        if (self::$instance === null)
+        {
+            self::$instance = new AllTeamRosters();
+        }
+
+        return self::$instance;
+    }
+
     public function getATeamRoster(int $key)
     {
         return $this->rosters[$key];

@@ -9,11 +9,12 @@ class PlayingTeam
     private array $reserves=[];
     private array $substituted=[];
     private int $substituesUsed=0;
-    CONST MAX_RESERVE_STAT = 990;
+    CONST MAX_RESERVE_STAT = 500;
 
     public function __construct(TeamRosters $fullteam)
     {
         $fullteam->sortPlayers();
+//        var_dump($fullteam);
         $this->name = $fullteam->getName();
         $this->getActivePlayers($fullteam->getTeam());
     }
@@ -22,10 +23,12 @@ class PlayingTeam
     {
         $i=0;
         foreach ($fullTeam as $num=>$player) {
-            if ($i<11) $this->primary[$num]=$player[0];
-            if ($i>11 && $i<15 ) $this->reserves[$num]=$player[0];
-            $i++;
-            if ($i===15) break;
+            if ($player[0]>0) {
+                if ($i < 11) $this->primary[$num] = $player[0];
+                if ($i > 11 && $i < 15) $this->reserves[$num] = $player[0];
+                $i++;
+                if ($i === 15) break;
+            }
         }
     }
 
@@ -52,11 +55,12 @@ class PlayingTeam
 //        var_dump($this->primary);
     }
 
-    public function checkReservesAndInjuries(int $num)
+    public function checkReservesAndInjuries(int $num): int
     {
         $this->checkInjuries($num);
         $this->checkReserveNeeds($num);
-
+        $count = count($this->primary);
+       return $count;
     }
 
     private function checkInjuries(int $num)
@@ -65,16 +69,17 @@ class PlayingTeam
         foreach ($tired as $key=>$value)
         {
             $injuryChance = 0;
-            if ($value<500 && $value>0) $injuryChance = 3;
-            if ($value<0) $injuryChance = 10;
+            if ($value<500 && $value>0) $injuryChance = 1;
+            if ($value<0) $injuryChance = 4;
             if ($injuryChance>0)
             {
                 $rand = mt_rand(0,100);
                 if ($rand<$injuryChance)
                 {
-                    var_dump($tired);
-                    var_dump([$rand, $injuryChance]);
-                    var_dump($key);
+//                    var_dump($tired);
+//                    var_dump([$rand, $injuryChance]);
+//                    var_dump($key);
+                    LogEvents::log($num.". minute: - Injury " . $this->name." player: ".$key);
                     $this->playerBecameInjured($key);
                 }
             }
@@ -92,6 +97,7 @@ class PlayingTeam
             $rand=mt_rand(0,100);
             if ($rand<$reserveChance)
             {
+                LogEvents::log($num.". minute: Substitute: ". $this->name);
                 $this->replaceAPlayer(array_key_first($tired));
             }
         }
@@ -99,8 +105,7 @@ class PlayingTeam
 
     private function playerBecameInjured(int $num)
     {
-        var_dump("injury");
-        var_dump($num);
+        $this->primary[$num]-=1500;
         if ($this->substituesUsed < 3)
         {
             $this->replaceAPlayer($num);
@@ -110,20 +115,22 @@ class PlayingTeam
             $this->substituted[$num]=$this->primary[$num];
             unset($this->primary[$num]);
         }
+        if (count($this->primary)<11)
+        {
+            LogEvents::log($this->name.' plays with '.count($this->primary)." players");
+        }
+
     }
 
     private function replaceAPlayer(int $player)
     {
-        var_dump("csere");
-//        var_dump($tiredPlayers);
-//        var_dump($this->reserves);
-
         $this->substituted[$player]=$this->primary[$player];
         unset($this->primary[$player]);
         $newPlayer = array_key_first($this->reserves);
         $this->primary[$newPlayer]=$this->reserves[$newPlayer];
         unset($this->reserves[$newPlayer]);
         $this->substituesUsed++;
+        LogEvents::log("replace ".$player. " with ". $newPlayer);
 
     }
 
@@ -134,6 +141,23 @@ class PlayingTeam
         });
         asort($tired);
         return $tired;
+    }
+
+    public function refreshRoster(TeamRosters $team)
+    {
+        foreach ($this->primary as $key=>$value)
+        {
+            $team->setPLayerStat($key,$value);
+        }
+        foreach ($this->reserves as $key=>$value)
+        {
+            $team->setPLayerStat($key,$value);
+        }
+        foreach ($this->substituted as $key=>$value)
+        {
+            $team->setPLayerStat($key,$value);
+        }
+        return $team;
     }
 
 }
