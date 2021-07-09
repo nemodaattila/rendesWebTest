@@ -47,7 +47,7 @@ class TeamRosterCalculator
             if ($rand<$statIndicator[2] && $rand>$statIndicator[1]) $stat*=(1.2*mt_rand(5,15)/10);
             if ($rand>$statIndicator[2]) $stat*=(1.4*mt_rand(5,15)/10);
 
-            $players[]=floor($stat);
+            $players[]=[floor($stat),floor($stat)];
         }
         return $players;
     }
