@@ -9,14 +9,39 @@ class EulerModel
     private int $b = 1;
     private int $c = 0;
 
-    private int $prime;
+    private int $maxOfTree;
+    private array $primes;
+
+    private int $ABPower=2;
+
+    private array $counts=[];
+
+    /**
+     * @param array $primes
+     */
+    public function setPrimes(array $primes): void
+    {
+        $this->primes = $primes;
+        foreach ($this->primes as $value)
+        {
+            $this->counts[$value]=0;
+        }
+    }
+
     CONST POWER = 3;
 
+    private int $maxPrime;
 
-    public function __construct(int $prime)
+    /**
+     * @param int $maxPrime
+     */
+    public function setMaxPrime(int $maxPrime): void
     {
-        $this->prime = $prime;
+        $this->maxPrime = $maxPrime;
     }
+
+
+
 
     /**
      * @return int
@@ -44,28 +69,52 @@ class EulerModel
 
     public function writeOut()
     {
-        echo $this->prime." ".$this->getA() . ' ' . $this->getB() . ' ' . $this->getC() . " ".($this->a**self::POWER + $this->b**self::POWER) % $this->prime." ".$this->c**self::POWER." <br/>";
+        echo $this->actualPrime." ".$this->getA() . ' ' . $this->getB() . ' ' . $this->getC() . " ".($this->a**self::POWER + $this->b**self::POWER) % $this->actualPrime." ".$this->c**self::POWER." <br/>";
     }
 
     public function increaseIntegers()
     {
         $this->c++;
-        if ($this->c === $this->prime) {
+        if ($this->c === $this->maxPrime) {
             $this->c = 1;
             $this->b++;
-            if ($this->b === $this->prime)
+            $this->recountABPover();
+            if ($this->b === $this->maxPrime)
             {
                 $this->b = 1;
                 $this->a++;
             }
-            if ($this->a === $this->prime)
+            if ($this->a === $this->maxPrime)
                 return false;
         }
+        $this->maxOfTree = max($this->a,$this->b,$this->c);
         return 1;
     }
 
-    public function isCongruent(): bool
+    private function recountABPover()
     {
-        return ($this->a**self::POWER + $this->b**self::POWER) % $this->prime === $this->c**self::POWER;
+        $this->ABPower=$this->a**self::POWER + $this->b**self::POWER;
+    }
+
+    public function isCongruent(int $c, int $prime): bool
+    {
+        return $this->ABPower % $prime === $c;
+    }
+
+    public function checkAllCongruent()
+    {
+        $c= $this->c**self::POWER;
+        $count = 0;
+        foreach( $this->primes as $value)
+        {
+            if ($value> $this->maxOfTree) {
+                $true = $this->isCongruent($c, $value);
+                if ($true === true) {
+                    $this->counts[$value]++;
+                }
+                $count += $true;
+            }
+        }
+        return $count;
     }
 }
