@@ -53,6 +53,7 @@ class FootballMatch
     {
         LogEvents::log("<br>Score: ". $this->goals[0]. ' - '. $this->goals[1]."<br>");
         LogEvents::log("Extra Time:");
+        LogEvents::log("Overall scores: ". $this->playingTeamA->getOverallStat() ." - ". $this->playingTeamB->getOverallStat().'<br>');
         $i=91;
         while($this->goals[0]===$this->goals[1])
         {
@@ -65,7 +66,7 @@ class FootballMatch
     {
         $scoreA = $this->playingTeamA->getOverallStat() * (mt_rand(9, 11) / 10);
         $scoreB = $this->playingTeamB->getOverallStat() * (mt_rand(9, 11) / 10);
-//            var_dump([$scoreA,$scoreB]);
+//            LogEvents::log($scoreA.' - '. $scoreB);
         $equalLimit = min($scoreA, $scoreB) / 5;
         $clashValue = abs($scoreA - $scoreB);
 //            var_dump($clashValue);

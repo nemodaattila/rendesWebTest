@@ -23,6 +23,7 @@ class EuroCalculator
 
     public function __construct()
     {
+        LogEvents::emptyLog();
         $this->groups = new Groups();
         $this->generateTeams();
         $this->generateGroupDefaultStats();
@@ -30,6 +31,7 @@ class EuroCalculator
         $this->getTeamsForEliminationRound();
         $this->drawKnockoutMatches();
         $this->playEliminationRound();
+        $this->displayWinner();
     }
 
     private function generateTeams()
@@ -81,6 +83,8 @@ class EuroCalculator
         $thirdGroup = new GroupStats(array_keys($third));
 
         $thirdGroup->setExactValues($third);
+        LogEvents::log("Harmadik helyezettek:");
+        $thirdGroup->logResults();
         $third = array_keys($thirdGroup->getStats());
         unset($third[4]);
         unset($third[5]);
@@ -103,17 +107,14 @@ class EuroCalculator
 
     private function playEliminationRound()
     {
-        LogEvents::log("Knockout stage starts:<br>");
+        LogEvents::log("<br/>Knockout stage starts:<br>");
         for ($i = 1; $i < 5; $i++) {
             $this->succededTeams = [];
-            var_dump($this->succededTeams);
             LogEvents::log("Round " . ($i) . ":<br/>");
             for ($k = 0; $k < count($this->knockoutMatches); $k++) {
                 [$t1, $t2] = $this->knockoutMatches[$k];
-                var_dump([$t1, $t2]);
                 $match = new FootballMatch($t1, $t2, true);
                 [$g1, $g2] = ($match->getGoals());
-                var_dump($g1 <=> $g2);
                 $this->succededTeams[] = ($g1 <=> $g2) === 1 ? $t1 : $t2;
 
 //                $match2=new FootballMatch($this->groups->getGroups()[$key][$second[0]], $this->groups->getGroups()[$key][$second[1]]);
@@ -121,12 +122,11 @@ class EuroCalculator
 //                $this->changeGroupStats($key,[$this->groups->getGroups()[$key][$second[0]],$this->groups->getGroups()[$key][$second[1]]], $match2->getGoals());
 //                $this->groupStatistics[$key]->logResults();
             }
-            var_dump("roundEnd");
 
             if ($i < 4) {
                 $this->logSuccededTeams($i);
                 $this->drawKnockoutMatches(false);
-            } else echo("win");
+            }
             $this->winner=$this->succededTeams[0];
 
         }
@@ -146,11 +146,18 @@ class EuroCalculator
         $this->knockoutMatches=[];
         if ($shuffle)
             shuffle($this->succededTeams);
-        var_dump($this->succededTeams);
         for ($i = 0; $i < count($this->succededTeams); $i += 2) {
             $this->knockoutMatches[] = [$this->succededTeams[$i], $this->succededTeams[$i + 1]];
         }
-        var_dump($this->knockoutMatches);
+    }
+
+    private function displayWinner()
+    {
+        $teams = (new TeamData())->getTeams();
+        LogEvents::log("The Winner OF THE EURO 2020 Football Championship is:<br/>");
+        LogEvents::log("!!!!!!!!!!!!!!! ".$teams[$this->winner][0].' !!!!!!!!!!!!!!!!!!!!!!');
+        echo "The Winner OF THE EURO 2020 Football Championship is:<br/>";
+        echo "!!!!!!!!!!!!!!! ".$teams[$this->winner][0].' !!!!!!!!!!!!!!!!!!!!!!';
     }
 
 }

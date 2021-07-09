@@ -79,7 +79,7 @@ class PlayingTeam
 //                    var_dump($tired);
 //                    var_dump([$rand, $injuryChance]);
 //                    var_dump($key);
-                    LogEvents::log($num.". minute: - Injury " . $this->name." player: ".$key);
+                    LogEvents::log($num.". minute: Injury " . $this->name." player: ".$key);
                     $this->playerBecameInjured($key);
                 }
             }
