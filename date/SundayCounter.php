@@ -1,25 +1,29 @@
 <?php
+namespace date;
+use DateInterval;
+use DateTime;
 
 class SundayCounter
 {
     private DateTime $chosenDate;
     private DateTime $today;
     private DateTime $date;
-    private int $numOfSundays=0;
+    private ?int $numOfSundays=null;
 
-    public function __construct()
+    public function __construct(string $date)
     {
         $this->today = new DateTime();
-        $this->date = new DateTime(filter_input(INPUT_POST, "date", FILTER_SANITIZE_STRING));
-        $this->chosenDate = new DateTime(filter_input(INPUT_POST, "date", FILTER_SANITIZE_STRING));
-        var_dump($this);
-    }
+        $this->date = new DateTime(filter_var( $date, FILTER_SANITIZE_STRING));
+        $this->chosenDate = new DateTime(filter_var($date, FILTER_SANITIZE_STRING));
+        $this->numOfSundays = 0;
+        }
 
-    public function countSundays()
+    public function countSundays():array
     {
+
         $this->setDateToNearestSunday();
         $this->iteratateSundays();
-        $this->displayResult();
+        return [$this->chosenDate->format('Y-m-d'), $this->numOfSundays];
     }
 
     private function setDateToNearestSunday()
@@ -43,15 +47,7 @@ class SundayCounter
     {
         return intval($this->date->format('d')) === 1;
     }
-
-    private function displayResult()
-    {
-        var_dump($this->numOfSundays);
-        echo "The count of Sundays since ".$this->chosenDate->format('Y-m-d')." is: ".$this->numOfSundays;
-    }
 }
 
-$sc = new SundayCounter();
-$sc->countSundays();
 
 
