@@ -14,7 +14,6 @@ class EulerModel
 
     private int $ABPower=2;
 
-    private array $counts=[];
 
     /**
      * @param array $primes
@@ -109,9 +108,6 @@ class EulerModel
         {
             if ($value> $this->maxOfTree) {
                 $true = $this->isCongruent($c, $value);
-                if ($true === true) {
-                    $this->counts[$value]++;
-                }
                 $count += $true;
             }
         }

@@ -19,7 +19,6 @@ class EulerController
         {
             $this->congruentCount+=$this->model->checkAllCongruent();
         }
-        var_dump($this->model);
         return $this->congruentCount;
     }
 

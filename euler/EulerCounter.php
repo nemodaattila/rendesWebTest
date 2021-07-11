@@ -13,82 +13,106 @@ class EulerCounter
     const PRIME_COUNT_UP_TO_1M = 78499;
     const MAX_PRIME = 1000000;
 
-    const MAX_PRIME_TO_CHECK = 1000;
+    private int $maxPrimeToCheck=0;
     private int $allSolutions = 0;
     private array $primes = [];
+    private array $power = [];
+
+    private string $primeFileSha1 = "d93e630802e375a228d57767b4ead46ef988e317";
+    private string $powerFileSha1 = "d931c8ee166af26faab8df890a94819cf96a9874";
 
 
 
     private EulerController $euController;
 
-    public function __construct()
+    public function __construct(int $prime)
     {
+        $this->maxPrimeToCheck = $prime;
         $this->euController = new EulerController();
         $this->checkPrimesInFile();
+        $this->checkPowerFile();
     }
 
     private function checkPrimesInFile()
     {
-        if (file_exists("primes.txt")) {
-            $myfile = fopen("primes.txt", "r");
-            while (!feof($myfile)) {
-                $num = fgets($myfile);
-                if (intval($num)!==0)
-                    $this->primes[] = intval($num);
-            }
-            if (count($this->primes) !== self::PRIME_COUNT_UP_TO_1M)
-            {
-                $this->searchAndSavePrimes();
-            }
+        $file = "euler\primes.txt";
 
+        if (file_exists($file) && sha1_file($file) === $this->primeFileSha1){
+
+                var_dump("primeok");
+            $openFile = fopen($file, "r");
+            while (!feof($openFile)) {
+                $num = fgets($openFile);
+                if (intval($num)<=$this->maxPrimeToCheck)  {
+                    $this->primes[] = intval($num);
+                }
+                else
+                {
+                    break;
+                }
+            }
         }
         else
             $this->searchAndSavePrimes();
+        var_dump($this->primes);
+
     }
 
-    private function searchAndSavePrimes()
+        private function checkPowerFile()
     {
+        var_dump("start");
+        $file="euler\power.txt";
+        if (file_exists($file) && sha1_file($file) === $this->powerFileSha1){
+            var_dump("poewrok");
+            $openFile = fopen($file, "r");
+            while (!feof($openFile)) {
+                $nums = fgets($openFile);
+                [$num,$power] = explode(',',$nums);
+                if (intval($num)<=$this->maxPrimeToCheck)  {
+                    $this->power[] = [intval($num),$power];
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+        else
+            $this->searchAndSavePower();
+        var_dump($this->power);
+    }
+
+      private function searchAndSavePrimes()
+    {
+        var_dump("primeseacrh");
         $this->primes=[];
-        $myfile = fopen("primes.txt", "w") or die("Unable to open file!");
+        $myfile = fopen("euler\primes.txt", "w") or die("Unable to open file!");
         for ($i = 1; $i <= self::MAX_PRIME; $i++) {
             if ($this->isPrime($i))
             {
-                $this->primes[]=$i;
+                if ($i<=$this->maxPrimeToCheck)
+                    $this->primes[]=$i;
                 fwrite($myfile, $i."\n");
             }
         }
-
-        var_dump($this->primes);
     }
 
-    public function countSolutions(): int
+        private function searchAndSavePower()
     {
-        $this->getUsedPrimes();
-        $this->euController->setPrimes($this->primes);
-        $this->allSolutions=$this->euController->countSolutions(self::MAX_PRIME_TO_CHECK);
-//        $sum = 0;
-//        for ($i = 1; $i <= self::MAXPRIME; $i++) {
-//            if ($this->isPrime($i))
-//                $sum++;
-//        }
-//        var_dump($sum);
+        var_dump("save");
+        $this->power=[];
+        $myfile = fopen("euler\power.txt", "w") or die("Unable to open file!");
+        for ($i = 1; $i <= 1000000; $i++) {
 
-//        for ($i = 1; $i <= self::MAXPRIME; $i++) {
-//            if ($this->isPrime($i)) $this->countWithPrime($i);
-//        }
+            if ($i<=$this->maxPrimeToCheck)  {
+                $this->power[]=[$i,$i**3];
+            }
+            fwrite($myfile, $i.",".$i**3 ."\n");
+        }
 
-        return $this->allSolutions;
     }
 
-
-
-    private function countWithPrime($prime)
-    {
-        $this->euController = new EulerController($prime);
-        $this->allSolutions += $this->euController->countSolutions();
-    }
-
-    function isPrime($num): bool
+        function isPrime($num): bool
     {
         for ($i = 2; $i <= sqrt($num); $i++) {
             if ($num % $i == 0) {
@@ -98,17 +122,55 @@ class EulerCounter
         return 1;
     }
 
-    private function getUsedPrimes()
+
+//
+//
+//
+
+//
+    public function countSolutions(): int
     {
-        if (self::MAX_PRIME_TO_CHECK !== self::MAX_PRIME)
-        {
-            $i=0;
-            do
-            {
-                $i++;
-            }while($this->primes[$i]<=self::MAX_PRIME_TO_CHECK);
-            array_splice($this->primes, $i);
-        }
+//        $this->getUsedPrimes();
+//        $this->euController->setPrimes($this->primes);
+//        $this->allSolutions=$this->euController->countSolutions($this->maxPrimeToCheck);
+////        $sum = 0;
+////        for ($i = 1; $i <= self::MAXPRIME; $i++) {
+////            if ($this->isPrime($i))
+////                $sum++;
+////        }
+////        var_dump($sum);
+//
+////        for ($i = 1; $i <= self::MAXPRIME; $i++) {
+////            if ($this->isPrime($i)) $this->countWithPrime($i);
+////        }
+//
+//        return $this->allSolutions;
+        return 1;
     }
+//
+//
+//
+//    private function countWithPrime($prime)
+//    {
+//        $this->euController = new EulerController($prime);
+//        $this->allSolutions += $this->euController->countSolutions();
+//    }
+//
+
+//
+//    private function getUsedPrimes()
+//    {
+//        if ($this->maxPrimeToCheck !== self::MAX_PRIME)
+//        {
+//            $i=0;
+//            do
+//            {
+//                $i++;
+//            }while($this->primes[$i]<=$this->maxPrimeToCheck);
+//            array_splice($this->primes, $i);
+//        }
+//    }
+//
+
 
 }
