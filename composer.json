@@ -1,7 +1,14 @@
 {
   "autoload": {
     "psr-4": {
-
+      "routes\\": "core/routes/",
+      "coreServices\\": "core/services/",
+      "coreModel\\": "core/model/",
+      "HttpRequestProcessorClasses\\": "httpRequestProcessorClasses/",
+      "view\\": "view/",
+      "euro\\": "euro/",
+      "date\\": "date/",
+      "euler\\": "euler/"
     }
   }
 }
