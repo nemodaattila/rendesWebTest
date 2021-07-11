@@ -14,17 +14,24 @@ class EulerController
 
     public function countSolutions(int $prime)
     {
+
         $this->model->setMaxPrime($prime);
         while ($this->model->increaseIntegers())
         {
             $this->congruentCount+=$this->model->checkAllCongruent();
         }
+
         return $this->congruentCount;
     }
 
     public function setPrimes(array $primes)
     {
         $this->model->setPrimes($primes);
+    }
+
+    public function setPower(array $power)
+    {
+        $this->model->setPower($power);
     }
 
 }

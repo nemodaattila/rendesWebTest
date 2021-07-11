@@ -39,7 +39,6 @@ class EulerCounter
 
         if (file_exists($file) && sha1_file($file) === $this->primeFileSha1){
 
-                var_dump("primeok");
             $openFile = fopen($file, "r");
             while (!feof($openFile)) {
                 $num = fgets($openFile);
@@ -54,22 +53,19 @@ class EulerCounter
         }
         else
             $this->searchAndSavePrimes();
-        var_dump($this->primes);
 
     }
 
         private function checkPowerFile()
     {
-        var_dump("start");
         $file="euler\power.txt";
         if (file_exists($file) && sha1_file($file) === $this->powerFileSha1){
-            var_dump("poewrok");
             $openFile = fopen($file, "r");
             while (!feof($openFile)) {
                 $nums = fgets($openFile);
                 [$num,$power] = explode(',',$nums);
                 if (intval($num)<=$this->maxPrimeToCheck)  {
-                    $this->power[] = [intval($num),$power];
+                    $this->power[intval($num)] = intval($power);
                 }
                 else
                 {
@@ -79,12 +75,10 @@ class EulerCounter
         }
         else
             $this->searchAndSavePower();
-        var_dump($this->power);
     }
 
       private function searchAndSavePrimes()
     {
-        var_dump("primeseacrh");
         $this->primes=[];
         $myfile = fopen("euler\primes.txt", "w") or die("Unable to open file!");
         for ($i = 1; $i <= self::MAX_PRIME; $i++) {
@@ -99,13 +93,12 @@ class EulerCounter
 
         private function searchAndSavePower()
     {
-        var_dump("save");
         $this->power=[];
         $myfile = fopen("euler\power.txt", "w") or die("Unable to open file!");
         for ($i = 1; $i <= 1000000; $i++) {
 
             if ($i<=$this->maxPrimeToCheck)  {
-                $this->power[]=[$i,$i**3];
+                $this->power[$i]=$i**3;
             }
             fwrite($myfile, $i.",".$i**3 ."\n");
         }
@@ -130,9 +123,9 @@ class EulerCounter
 //
     public function countSolutions(): int
     {
-//        $this->getUsedPrimes();
-//        $this->euController->setPrimes($this->primes);
-//        $this->allSolutions=$this->euController->countSolutions($this->maxPrimeToCheck);
+        $this->euController->setPrimes($this->primes);
+        $this->euController->setPower($this->power);
+        $this->allSolutions=$this->euController->countSolutions($this->maxPrimeToCheck);
 ////        $sum = 0;
 ////        for ($i = 1; $i <= self::MAXPRIME; $i++) {
 ////            if ($this->isPrime($i))
@@ -144,8 +137,7 @@ class EulerCounter
 ////            if ($this->isPrime($i)) $this->countWithPrime($i);
 ////        }
 //
-//        return $this->allSolutions;
-        return 1;
+        return $this->allSolutions;
     }
 //
 //

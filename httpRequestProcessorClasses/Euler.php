@@ -12,6 +12,7 @@ class Euler
     public function displayInputNumber()
     {
         require_once "view\maxPrimeChooser.html";
+
     }
 
     public function countSolutions(RequestParameters $requestParameters)

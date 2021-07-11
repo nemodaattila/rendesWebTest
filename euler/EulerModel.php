@@ -11,8 +11,20 @@ class EulerModel
 
     private int $maxOfTree;
     private array $primes;
+    private array $power;
 
     private int $ABPower=2;
+
+    private int $maxPrime;
+
+    /**
+     * @param array $power
+     */
+    public function setPower(array $power): void
+    {
+        $this->power = $power;
+    }
+
 
 
     /**
@@ -21,15 +33,12 @@ class EulerModel
     public function setPrimes(array $primes): void
     {
         $this->primes = $primes;
-        foreach ($this->primes as $value)
-        {
-            $this->counts[$value]=0;
-        }
+
     }
 
-    CONST POWER = 3;
 
-    private int $maxPrime;
+
+
 
     /**
      * @param int $maxPrime
@@ -77,12 +86,13 @@ class EulerModel
         if ($this->c === $this->maxPrime) {
             $this->c = 1;
             $this->b++;
-            $this->recountABPover();
+
             if ($this->b === $this->maxPrime)
             {
                 $this->b = 1;
                 $this->a++;
             }
+            $this->recountABPover();
             if ($this->a === $this->maxPrime)
                 return false;
         }
@@ -92,22 +102,27 @@ class EulerModel
 
     private function recountABPover()
     {
-        $this->ABPower=$this->a**self::POWER + $this->b**self::POWER;
+        $this->ABPower=$this->power[$this->a] +
+            $this->power[$this->b];
+
     }
 
     public function isCongruent(int $c, int $prime): bool
     {
-        return $this->ABPower % $prime === $c;
+        return $this->ABPower % $prime === $this->power[$this->c];
     }
 
     public function checkAllCongruent()
     {
-        $c= $this->c**self::POWER;
+        $c= $this->power[$this->c];
         $count = 0;
         foreach( $this->primes as $value)
         {
-            if ($value> $this->maxOfTree) {
+            if ($value<= $this->maxOfTree) {
                 $true = $this->isCongruent($c, $value);
+
+
+
                 $count += $true;
             }
         }
