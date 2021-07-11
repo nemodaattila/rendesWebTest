@@ -31,7 +31,7 @@ class EuroCalculator
         $this->getTeamsForEliminationRound();
         $this->drawKnockoutMatches();
         $this->playEliminationRound();
-        $this->displayWinner();
+        $this->logWinner();
     }
 
     private function generateTeams()
@@ -110,7 +110,7 @@ class EuroCalculator
         LogEvents::log("<br/>Knockout stage starts:<br>");
         for ($i = 1; $i < 5; $i++) {
             $this->succededTeams = [];
-            LogEvents::log("Round " . ($i) . ":<br/>");
+            LogEvents::log("<br/>Round " . ($i) . ":<br/>");
             for ($k = 0; $k < count($this->knockoutMatches); $k++) {
                 [$t1, $t2] = $this->knockoutMatches[$k];
                 $match = new FootballMatch($t1, $t2, true);
@@ -151,13 +151,18 @@ class EuroCalculator
         }
     }
 
-    private function displayWinner()
+    private function logWinner()
     {
         $teams = (new TeamData())->getTeams();
         LogEvents::log("The Winner OF THE EURO 2020 Football Championship is:<br/>");
         LogEvents::log("!!!!!!!!!!!!!!! ".$teams[$this->winner][0].' !!!!!!!!!!!!!!!!!!!!!!');
-        echo "The Winner OF THE EURO 2020 Football Championship is:<br/>";
-        echo "!!!!!!!!!!!!!!! ".$teams[$this->winner][0].' !!!!!!!!!!!!!!!!!!!!!!';
+
+    }
+
+    public function getWinner()
+    {
+        $teams = (new TeamData())->getTeams();
+        return$teams[$this->winner][0];
     }
 
 }

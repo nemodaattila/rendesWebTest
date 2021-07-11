@@ -6,26 +6,27 @@ class LogEvents
 {
     static function emptyLog()
     {
-        $myfile = fopen("log.txt", "w") or die("Unable to open file!");
+        $myfile = fopen("euro\log.txt", "w") or die("Unable to open file!");
         fclose($myfile);
     }
 
     static function log(string $message)
     {
 //        echo($message.'<br/>');
-        $myfile = fopen("log.txt", "a") or die("Unable to open file!");
+        $myfile = fopen("euro\log.txt", "a") or die("Unable to open file!");
         fwrite($myfile, $message . '<br/>');
         fclose($myfile);
     }
 
-    public static function displayLog()
+    public static function readAllLog()
     {
-        $myfile = fopen("log.txt", "r") or die("Unable to open file!");
-// Output one line until end-of-file
+        $myfile = fopen("euro\log.txt", "r") or die("Unable to open file!");
+        $log = [];
         while (!feof($myfile)) {
-            echo fgets($myfile) . "<br>";
+            $log[] = fgets($myfile) . "<br>";
         }
 
         fclose($myfile);
+        return $log;
     }
 }
