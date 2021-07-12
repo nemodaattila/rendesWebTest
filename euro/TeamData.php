@@ -2,8 +2,15 @@
 
 namespace euro;
 
+/**
+ * Class TeamData name and coefficient of all teams
+ * @package euro
+ */
 class TeamData
 {
+    /**
+     * @var array|array[] name and coefficient of all teams
+     */
     private array $teams = [
         1 => ["Austria", 1523],
         2 => ["Belgium", 1783],
@@ -32,22 +39,36 @@ class TeamData
     ];
 
     /**
-     * @return array
+     * returns all teams
+     * @return array team names and coefficient
      */
     public function getTeams(): array
     {
         return $this->teams;
     }
 
-    public function getMinMax()
+    /**
+     * returns the name of a team based on id
+     * @param int $id id of the team
+     * @return string name of the team
+     */
+    public function getTeamName(int $id):string
+    {
+        return $this->teams[$id][0];
+    }
+
+    /**
+     * returns the maximum and minimum of coefficients
+     * @return array [min,max]
+     */
+    public function getMinMax(): array
     {
         $min = INF;
         $max = 0;
-        foreach ($this->teams as $value)
-        {
-            if ($value[1]<$min) $min = $value[1];
-            if ($value[1]>$max) $max = $value[1];
+        foreach ($this->teams as $value) {
+            if ($value[1] < $min) $min = $value[1];
+            if ($value[1] > $max) $max = $value[1];
         }
-        return [$min,$max];
+        return [$min, $max];
     }
 }

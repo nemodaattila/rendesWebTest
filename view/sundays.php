@@ -6,14 +6,14 @@
 </head>
 <body>
 <?php
-$dv = \coreServices\DataForView::getInstance();
-if ($dv->getValue("success")) {
 
+use coreServices\DataForView;
+
+$dv = DataForView::getInstance();
+if ($dv->getValue("success")) {
     echo "The count of Sundays that are the first days of a month since " . $dv->getValue("result")[0] . " is: " . $dv->getValue("result")[1];
-}
-else
-{
-    echo "Error: ".$dv->getValue("result");
+} else {
+    echo "Error: " . $dv->getValue("result");
 }
 ?>
 </body>

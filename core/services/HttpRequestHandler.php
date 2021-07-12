@@ -5,8 +5,6 @@ namespace coreServices;
 use coreModel\RequestParameters;
 use Error;
 use Exception;
-use exception\HttpResponseTriggerException;
-use helper\VariableHelper;
 
 /**
  * loads the corresponding HTTP request processor class
@@ -45,12 +43,10 @@ class HttpRequestHandler
             $this->searchForExistingRoute();
             $this->getHttpRequestData();
             $this->loadRestClass();
-        } catch (HttpResponseTriggerException $e) {
-            $this->sendResponseBasedOnTriggerException($e);
         } catch (Exception $e) {
-            $this->sendResponseBasedOnError($e->getMessage(), $e->getFile(), $e->getLine());
+            $this->displayErrorPage($e->getMessage(), $e->getFile(), $e->getLine());
         } catch (Error $e) {
-            $this->sendResponseBasedOnError($e->getMessage(), $e->getFile(), $e->getLine());
+            $this->displayErrorPage($e->getMessage(), $e->getFile(), $e->getLine());
         }
     }
 
@@ -103,28 +99,16 @@ class HttpRequestHandler
     }
 
     /**
-     * send a http response based on a HttpResponseTriggerException
-     * @param HttpResponseTriggerException $e specific exception for responses
-     */
-    private function sendResponseBasedOnTriggerException(HttpResponseTriggerException $e)
-    {
-        header($_SERVER['SERVER_PROTOCOL'] . ' ' . $e->getHttpCode());
-        $data = ['success' => $e->isSuccess(), "data" => $e->getData()];
-        echo json_encode($data);
-        die();
-    }
-
-    /**
      * sends a http response based on error parameters
      * @param string $message error message
      * @param string $file filename from which the error was thrown
      * @param int $line line from which the error was thrown
      */
-    private function sendResponseBasedOnError(string $message, string $file, int $line)
+    private function displayErrorPage(string $message, string $file, int $line)
     {
-        //DO save message to log instead of echo
-        header($_SERVER['SERVER_PROTOCOL'] . ' ' . 500);
-        echo $message . ' - ' . $file . ':' . $line;
+        $dw = DataForView::getInstance();
+        $dw->setValue("error", $message . ' - ' . $file . ':' . $line);
+        require_once "view/error.php";
     }
 
     /**
@@ -145,13 +129,13 @@ class HttpRequestHandler
                     $requestData = file_get_contents('php://input');
                     $decodedData = json_decode($requestData);
                     if ($decodedData === null) {
-                        $decodedData = explode("=",$requestData);
-                        $this->parameters->setRequestData([$decodedData[0]=>$decodedData[1]]);
+                        $decodedData = explode("=", $requestData);
+                        $this->parameters->setRequestData([$decodedData[0] => $decodedData[1]]);
                     } else {
                         if (gettype($decodedData) === 'array') {
                             $this->parameters->setRequestData($decodedData);
                         } elseif (gettype($decodedData) === 'object') {
-                            $this->parameters->setRequestData(VariableHelper::convertStdClassToArray($decodedData));
+//                            $this->parameters->setRequestData(VariableHelper::convertStdClassToArray($decodedData));
                         } else throw new Exception('POST REQUEST DATA INCORRECT FORMAT');
                     }
                     break;
@@ -164,8 +148,8 @@ class HttpRequestHandler
      */
     private function loadRestClass()
     {
-        ['className' => $restClass, 'functionName' => $functionName] = $this->routeAnalyser->getRestData();
-        $restClass = "\\".$this->requestProcessorFolder."\\" . $restClass;
+        ['className' => $restClass, 'functionName' => $functionName] = $this->routeAnalyser->getRequestProcessorClass();
+        $restClass = "\\" . $this->requestProcessorFolder . "\\" . $restClass;
         $class = new $restClass();
         $class->$functionName($this->parameters);
     }

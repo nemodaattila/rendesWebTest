@@ -2,31 +2,44 @@
 
 namespace euro;
 
+/**
+ * Class LogEvents logs events of the tournament
+ * @package euro
+ */
 class LogEvents
 {
+    /**
+     * empties the log file
+     */
     static function emptyLog()
     {
-        $myfile = fopen("euro\log.txt", "w") or die("Unable to open file!");
-        fclose($myfile);
+        $file = fopen("euro\log.txt", "w") or die("Unable to open file!");
+        fclose($file);
     }
 
+    /**
+     * writes (logs) data to file
+     * @param string $message data to be logged
+     */
     static function log(string $message)
     {
-//        echo($message.'<br/>');
-        $myfile = fopen("euro\log.txt", "a") or die("Unable to open file!");
-        fwrite($myfile, $message . '<br/>');
-        fclose($myfile);
+        $file = fopen("euro\log.txt", "a") or die("Unable to open file!");
+        fwrite($file, $message . "\n");
+        fclose($file);
     }
 
-    public static function readAllLog()
+    /**
+     * reads and returns the content of the log file (as array)
+     * @return array the content of the log file
+     */
+    public static function readAllLog(): array
     {
-        $myfile = fopen("euro\log.txt", "r") or die("Unable to open file!");
+        $file = fopen("euro\log.txt", "r") or die("Unable to open file!");
         $log = [];
-        while (!feof($myfile)) {
-            $log[] = fgets($myfile) . "<br>";
+        while (!feof($file)) {
+            $log[] = explode(",", fgets($file));
         }
-
-        fclose($myfile);
+        fclose($file);
         return $log;
     }
 }

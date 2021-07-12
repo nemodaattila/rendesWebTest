@@ -2,17 +2,26 @@
 
 namespace coreServices;
 
-
+/**
+ * Class DataForView class for storing data for view
+ * @package coreServices
+ */
 class DataForView
 {
-    private array $data=[];
 
+    /**
+     * @var array data to be displayed in <string>key => <any>value from
+     */
+    private array $data = [];
+
+    /**
+     * @var DataForView|null singleton instance of DataForView
+     */
     private static ?DataForView $instance = null;
 
     public static function getInstance(): DataForView
     {
-        if (self::$instance === null)
-        {
+        if (self::$instance === null) {
             self::$instance = new DataForView();
         }
 

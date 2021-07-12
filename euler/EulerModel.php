@@ -2,6 +2,10 @@
 
 namespace euler;
 
+/**
+ * Class EulerModel model for counting the solution for Euler problem 753
+ * @package euler
+ */
 class EulerModel
 {
 
@@ -9,23 +13,38 @@ class EulerModel
     private int $b = 1;
     private int $c = 0;
 
+    /**
+     * @var int the maximum of a,b and c
+     */
     private int $maxOfTree;
+
+    /**
+     * @var array primes up to maxPrime
+     */
     private array $primes;
-    private array $power;
 
-    private int $ABPower=2;
+    /**
+     * @var array power (of 3) of numbers up to maxPrime
+     */
+    private array $powers;
 
+    /**
+     * @var int the sum of a^3 + b^3
+     */
+    private int $ABPower = 2;
+
+    /**
+     * @var int the max of an interval what a prime can be
+     */
     private int $maxPrime;
 
     /**
-     * @param array $power
+     * @param array $powers
      */
-    public function setPower(array $power): void
+    public function setPowers(array $powers): void
     {
-        $this->power = $power;
+        $this->powers = $powers;
     }
-
-
 
     /**
      * @param array $primes
@@ -33,12 +52,7 @@ class EulerModel
     public function setPrimes(array $primes): void
     {
         $this->primes = $primes;
-
     }
-
-
-
-
 
     /**
      * @param int $maxPrime
@@ -48,83 +62,45 @@ class EulerModel
         $this->maxPrime = $maxPrime;
     }
 
-
-
-
     /**
-     * @return int
+     * increases the numbers (a,b,c) with 1
+     * first c , then if c is maxPrime , increases b (and sets c to 1)
+     * finally, if b === maxPrime, increases a
+     * @return bool if (a === maxPrime) false
      */
-    public function getA(): int
-    {
-        return $this->a;
-    }
-
-    /**
-     * @return int
-     */
-    public function getB(): int
-    {
-        return $this->b;
-    }
-
-    /**
-     * @return int
-     */
-    public function getC(): int
-    {
-        return $this->c;
-    }
-
-    public function writeOut()
-    {
-        echo $this->actualPrime." ".$this->getA() . ' ' . $this->getB() . ' ' . $this->getC() . " ".($this->a**self::POWER + $this->b**self::POWER) % $this->actualPrime." ".$this->c**self::POWER." <br/>";
-    }
-
-    public function increaseIntegers()
+    public function increaseIntegers(): bool
     {
         $this->c++;
         if ($this->c === $this->maxPrime) {
             $this->c = 1;
             $this->b++;
-
-            if ($this->b === $this->maxPrime)
-            {
+            if ($this->b === $this->maxPrime) {
                 $this->b = 1;
                 $this->a++;
             }
-            $this->recountABPover();
+            $this->ABPower = $this->powers[$this->a] + $this->powers[$this->b];
             if ($this->a === $this->maxPrime)
                 return false;
         }
-        $this->maxOfTree = max($this->a,$this->b,$this->c);
-        return 1;
+        $this->maxOfTree = max($this->a, $this->b, $this->c);
+        return true;
     }
 
-    private function recountABPover()
+    /**
+     * iterates primes up to maxValue (and maxOfTree)
+     * count all solutions that matches the formula
+     * @return int count of matching solutions
+     */
+    public function checkAllCongruent(): int
     {
-        $this->ABPower=$this->power[$this->a] +
-            $this->power[$this->b];
-
-    }
-
-    public function isCongruent(int $c, int $prime): bool
-    {
-        return $this->ABPower % $prime === $this->power[$this->c];
-    }
-
-    public function checkAllCongruent()
-    {
-        $c= $this->power[$this->c];
+        $c = $this->powers[$this->c];
         $count = 0;
-        foreach( $this->primes as $value)
-        {
-            if ($value<= $this->maxOfTree) {
-                $true = $this->isCongruent($c, $value);
-
-
-
+        foreach ($this->primes as $prime) {
+            if ($prime <= $this->maxOfTree) {
+                $true = $this->ABPower % $prime === $c;
                 $count += $true;
-            }
+            } else
+                break;
         }
         return $count;
     }

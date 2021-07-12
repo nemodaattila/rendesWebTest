@@ -1,53 +1,88 @@
 <?php
+
 namespace date;
+
 use DateInterval;
 use DateTime;
+use Exception;
 
+/**
+ * Class SundayCounter searches for the count of sundays , that are the first day of a month, starting from given date
+ * @package date
+ */
 class SundayCounter
 {
+    /**
+     * @var DateTime chosen date by the user for display
+     */
     private DateTime $chosenDate;
-    private DateTime $today;
+    /**
+     * @var DateTime chosen date by user, for counting
+     */
     private DateTime $date;
-    private ?int $numOfSundays=null;
 
+    /**
+     * @var DateTime today's date
+     */
+    private DateTime $today;
+
+    /**
+     * @var int|null number of sundays that are the first day of a month
+     */
+    private ?int $numOfSundays;
+
+    /**
+     * SundayCounter constructor.
+     * @param string $date chosen date by user
+     * @throws Exception DateTime creation error
+     */
     public function __construct(string $date)
     {
         $this->today = new DateTime();
-        $this->date = new DateTime(filter_var( $date, FILTER_SANITIZE_STRING));
-        $this->chosenDate = new DateTime(filter_var($date, FILTER_SANITIZE_STRING));
+        $this->date = $this->chosenDate = new DateTime(filter_var($date, FILTER_SANITIZE_STRING));
         $this->numOfSundays = 0;
-        }
+    }
 
-    public function countSundays():array
+    /**
+     * function calls for counting sundays
+     * @return array [formatted chosen date, count of sundays]
+     * @throws Exception DateInterval duration parsing
+     */
+    public function countSundays(): array
     {
-
         $this->setDateToNearestSunday();
-        $this->iteratateSundays();
+        $this->iterateSundays();
         return [$this->chosenDate->format('Y-m-d'), $this->numOfSundays];
     }
 
+    /**
+     * sets the day to sunday AFTER the chosen date
+     * @throws Exception DateInterval duration parsing
+     */
     private function setDateToNearestSunday()
     {
         $day_of_week = intval($this->date->format('w'));
-        $offset = 0;
-        $offset = ($day_of_week !== 0) ? 7 - $day_of_week : 0;
-        $this->date->add(new DateInterval('P' . $offset . 'D'));
+        $this->date->add(new DateInterval('P' . (($day_of_week !== 0) ? 7 - $day_of_week : 0) . 'D'));
     }
 
-    private function iteratateSundays()
+    /**
+     *  increases the date with 1 week until today
+     * checks every date if its the first of a month
+     */
+    private function iterateSundays()
     {
         while ($this->date < $this->today) {
-            if ($this->isFirstDayofMonth()) $this->numOfSundays++;
+            if ($this->isFirstDayOfMonth()) $this->numOfSundays++;
             $this->date->add(new DateInterval('P7D'));
-
         }
     }
 
-    private function isFirstDayofMonth()
+    /**
+     * checks if the actual data is the first day of a month
+     * @return bool true : first day
+     */
+    private function isFirstDayOfMonth(): bool
     {
         return intval($this->date->format('d')) === 1;
     }
 }
-
-
-

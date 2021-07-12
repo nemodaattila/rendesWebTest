@@ -18,8 +18,10 @@ class RouteAnalyser
      */
     private array $routes;
 
-
-    private array $routeBase = [];
+    /**
+     * @var string[] url to check in routes (i.e. user/111)
+     */
+    private array $routeBase;
 
     /**
      * @var RequestParameters http parameters from request
@@ -29,16 +31,16 @@ class RouteAnalyser
     /**
      * @var array data of request processor class
      */
-    private array $restData;
+    private array $requestProcessorClass;
 
     public function getParameters(): RequestParameters
     {
         return $this->parameters;
     }
 
-    public function getRestData(): array
+    public function getRequestProcessorClass(): array
     {
-        return $this->restData;
+        return $this->requestProcessorClass;
     }
 
     public function __construct($routeBase)
@@ -48,6 +50,12 @@ class RouteAnalyser
         $this->parameters = new RequestParameters();
     }
 
+    /**
+     * creates an array from the target route url, result can't be empty
+     * @param string $route url
+     * @return string[] url as array
+     * @example user/111 -> ['user',111]
+     */
     private function createNonEmptyArrayFromUrl(string $route): array
     {
         $url = explode('\\', $route);
@@ -64,7 +72,7 @@ class RouteAnalyser
         foreach ($this->routes as $route) {
             $real = $this->identifyRoute($route[0], $route[1]);
             if ($real) {
-                $this->restData = ['className' => $route[2], 'functionName' => $route[3], 'authentication' => $route[4]];
+                $this->requestProcessorClass = ['className' => $route[2], 'functionName' => $route[3], 'authentication' => $route[4]];
                 return true;
             }
         }
@@ -89,9 +97,7 @@ class RouteAnalyser
         }
         $length = count($path);
         for ($i = 0; $i < $length; $i++) {
-
             if ($path[$i] !== $this->routeBase[$i]) {
-
                 if (preg_match('/\$([0-9]+?)/', $path[$i]) !== 1) {
                     $this->parameters->reset();
                     return false;

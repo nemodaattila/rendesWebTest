@@ -16,17 +16,14 @@ class Routes
      */
 
     private array $routes = [
-//        ['GET', 'metadata', 'BookMetaData', 'getBookMetaData', 'all'],
-//        ['POST', 'booklist', 'BookListGetter', 'getBookList', 'all'],
-//        ['GET', 'primarydata\$1', 'BookDataGetter', 'getBookPrimaryData', 'all'],
-//        ['GET', 'datalist\$1\$2', 'DataListGetter', 'getDataList', 'all'],
+
         ['POST', "euler\count", "Euler", "countSolutions", "all"],
         ['GET', "euler", "Euler", "displayInputNUmber", "all"],
         ['POST', "date\sunday", "Date", "countSundays", "all"],
         ['GET', "date", "Date", "displayCalendar", "all"],
-        ['GET', 'euro\readlog', "Euro", "displayLog",'all'],
-        ['GET', "euro", "Euro", "playChampionship",'all'],
-        ['GET', "", "Main", "loadMenu",'all']
+        ['GET', 'euro\readlog', "Euro", "displayLog", 'all'],
+        ['GET', "euro", "Euro", "playChampionship", 'all'],
+        ['GET', "", "Main", "loadMenu", 'all']
     ];
 
     /**

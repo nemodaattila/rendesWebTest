@@ -2,29 +2,60 @@
 
 namespace euro;
 
+/**
+ * the actual team that id playing in a match (11 + 3 player)
+ * Class PlayingTeam
+ * @package euro
+ */
 class PlayingTeam
 {
-    private string $name;
-    private array $primary=[];
-    private array $reserves=[];
-    private array $substituted=[];
-    private int $substituesUsed=0;
-    CONST MAX_RESERVE_STAT = 500;
+    /**
+     * @var int id (number) of the team
+     */
+    private int $id;
 
-    public function __construct(TeamRosters $fullteam)
+    /**
+     * @var array starter player of the team
+     */
+    private array $starters = [];
+
+    /**
+     * @var array reserves/substitutes
+     */
+    private array $reserves = [];
+
+    /**
+     * @var array substituted players
+     */
+    private array $substituted = [];
+
+    /**
+     * @var int count of substitutes used
+     */
+    private int $substitutesUsed = 0;
+
+    /**
+     * if a player is under that value, the player can be substituted or injured
+     */
+    const MAX_RESERVE_STAT = 500;
+
+    public function __construct(TeamRosters $fullTeam, int $teamNumber)
     {
-        $fullteam->sortPlayers();
-//        var_dump($fullteam);
-        $this->name = $fullteam->getName();
-        $this->getActivePlayers($fullteam->getTeam());
+        $fullTeam->sortPlayers();
+        $this->id = $teamNumber;
+        $this->getActivePlayers($fullTeam->getTeam());
     }
 
+    /**
+     * fills the starter and reserve players form full roster (best players)
+     * @param array $fullTeam full roster
+     */
     private function getActivePlayers(array $fullTeam)
     {
-        $i=0;
-        foreach ($fullTeam as $num=>$player) {
-            if ($player[0]>0) {
-                if ($i < 11) $this->primary[$num] = $player[0];
+        $i = 0;
+        foreach ($fullTeam as $num => $player) {
+            if ($player[0] > 0) {
+                if ($i < 11) $this->starters[$num] = $player[0];
                 if ($i > 11 && $i < 15) $this->reserves[$num] = $player[0];
                 $i++;
                 if ($i === 15) break;
@@ -32,132 +63,163 @@ class PlayingTeam
         }
     }
 
+    /**
+     * returns the overall stat of the playing team
+     * @return int overall stat
+     */
     public function getOverallStat(): int
     {
-        return array_sum($this->primary);
+        return array_sum($this->starters);
     }
 
+    /**
+     * decreases the stats of all primary players with a fixed value
+     * @param int $value value to be decreased with
+     */
     public function decreaseStats(int $value)
     {
-        foreach ($this->primary as $key=>$stat)
-        {
-            $this->primary[$key]=$stat-$value;
+        foreach ($this->starters as $key => $stat) {
+            $this->starters[$key] = $stat - $value;
         }
-//        var_dump($this->primary);
     }
 
+    /**
+     * decreases the stats of all players with a percentage
+     * @param int $value percentage to decrease with
+     */
     public function decreaseStatsByPercent(int $value)
     {
-        foreach ($this->primary as $key=>$stat)
-        {
-            $this->primary[$key]=floor($stat*((100-$value)/100));
+        foreach ($this->starters as $key => $stat) {
+            $this->starters[$key] = floor($stat * ((100 - $value) / 100));
         }
-//        var_dump($this->primary);
     }
 
-    public function checkReservesAndInjuries(int $num): int
+    /**
+     * checks after reserves and injuries
+     * @param int $minute minute of play
+     * @return int count of starter players
+     */
+    public function checkReservesAndInjuries(int $minute): int
     {
-        $this->checkInjuries($num);
-        $this->checkReserveNeeds($num);
-        $count = count($this->primary);
-       return $count;
+        $this->checkInjuries($minute);
+        $this->checkReserveNeeds($minute);
+        return count($this->starters);
     }
 
-    private function checkInjuries(int $num)
+    /**
+     * checks starter players for injury, based on player stat
+     * @param int $minute
+     */
+    private function checkInjuries(int $minute)
     {
         $tired = $this->findStatUnder500();
-        foreach ($tired as $key=>$value)
-        {
+        foreach ($tired as $key => $value) {
             $injuryChance = 0;
-            if ($value<500 && $value>0) $injuryChance = 1;
-            if ($value<0) $injuryChance = 4;
-            if ($injuryChance>0)
-            {
-                $rand = mt_rand(0,100);
-                if ($rand<$injuryChance)
-                {
-//                    var_dump($tired);
-//                    var_dump([$rand, $injuryChance]);
-//                    var_dump($key);
-                    LogEvents::log($num.". minute: Injury " . $this->name." player: ".$key);
+            if ($value < 500 && $value > 0) $injuryChance = 1;
+            if ($value < 0) $injuryChance = 4;
+            if ($injuryChance > 0) {
+                $rand = mt_rand(0, 100);
+                if ($rand < $injuryChance) {
+                    LogEvents::log("PI," . $minute . "," . $this->id . "," . $key);
                     $this->playerBecameInjured($key);
                 }
             }
         }
     }
 
-    private function checkReserveNeeds(int $num)
+    /**
+     * checks if substitute is needed
+     * @param int $minute minute of play
+     */
+    private function checkReserveNeeds(int $minute)
     {
-        if ($this->substituesUsed < 3)
-        {
+        if ($this->substitutesUsed < 3) {
             $tired = $this->findStatUnder500();
-            $reserveChance = floor((count($tired)*$num)/self::MAX_RESERVE_STAT*100);
-//            var_dump($tired);
-//            var_dump($reserveChance);
-            $rand=mt_rand(0,100);
-            if ($rand<$reserveChance)
-            {
-                LogEvents::log($num.". minute: Substitute: ". $this->name);
+            $reserveChance = floor((count($tired) * $minute) / self::MAX_RESERVE_STAT * 100);
+            $rand = mt_rand(0, 100);
+            if ($rand < $reserveChance) {
+                LogEvents::log("PS," . $minute . "," . $this->id);
                 $this->replaceAPlayer(array_key_first($tired));
             }
         }
     }
 
-    private function playerBecameInjured(int $num)
+    /**
+     * if a player is injured and there is a substitute
+     *  player is substituted
+     * if there is no substitute, player simply comes off
+     * player stats significantly decrease
+     * @param int $minute
+     */
+    private function playerBecameInjured(int $minute)
     {
-        $this->primary[$num]-=1500;
-        if ($this->substituesUsed < 3)
-        {
-            $this->replaceAPlayer($num);
+        $this->starters[$minute] -= 1500;
+        if ($this->substitutesUsed < 3) {
+            $this->replaceAPlayer($minute);
+        } else {
+            $this->substituted[$minute] = $this->starters[$minute];
+            unset($this->starters[$minute]);
         }
-        else
-        {
-            $this->substituted[$num]=$this->primary[$num];
-            unset($this->primary[$num]);
+        if (count($this->starters) < 11) {
+            LogEvents::log("TPC," . $this->id . ',' . count($this->starters));
         }
-        if (count($this->primary)<11)
-        {
-            LogEvents::log($this->name.' plays with '.count($this->primary)." players");
-        }
-
     }
 
+    /**
+     * replaces a player with a substitute
+     * @param int $player number of the player to be substituted
+     */
     private function replaceAPlayer(int $player)
     {
-        $this->substituted[$player]=$this->primary[$player];
-        unset($this->primary[$player]);
+        $this->substituted[$player] = $this->starters[$player];
+        unset($this->starters[$player]);
         $newPlayer = array_key_first($this->reserves);
-        $this->primary[$newPlayer]=$this->reserves[$newPlayer];
+        $this->starters[$newPlayer] = $this->reserves[$newPlayer];
         unset($this->reserves[$newPlayer]);
-        $this->substituesUsed++;
-        LogEvents::log("replace ".$player. " with ". $newPlayer);
+        $this->substitutesUsed++;
+        LogEvents::log("PR," . $player . "," . $newPlayer);
 
     }
 
-    private function findStatUnder500()
+    /**
+     * searches for players wirth stat under 500
+     * @return array
+     */
+    private function findStatUnder500(): array
     {
-        $tired = array_filter($this->primary, function ($value){
-            return $value<500;
+        $tired = array_filter($this->starters, function ($value) {
+            return $value < 500;
         });
         asort($tired);
         return $tired;
     }
 
-    public function refreshRoster(TeamRosters $team)
+    /**
+     * refreshes the statistic of the full roster with stats of the playing team at the end of the match
+     * @param TeamRosters $team FUll roster of the team
+     * @return TeamRosters refreshed team roster
+     */
+    public function refreshRoster(TeamRosters $team): TeamRosters
     {
-        foreach ($this->primary as $key=>$value)
-        {
-            $team->setPLayerStat($key,$value);
+        foreach ($this->starters as $key => $value) {
+            $team->setPLayerStat($key, $value);
         }
-        foreach ($this->reserves as $key=>$value)
-        {
-            $team->setPLayerStat($key,$value);
+        foreach ($this->reserves as $key => $value) {
+            $team->setPLayerStat($key, $value);
         }
-        foreach ($this->substituted as $key=>$value)
-        {
-            $team->setPLayerStat($key,$value);
+        foreach ($this->substituted as $key => $value) {
+            $team->setPLayerStat($key, $value);
         }
         return $team;
+    }
+
+    /**
+     * returns the teams id
+     * @return int
+     */
+    public function getId(): int
+    {
+        return $this->id;
     }
 
 }

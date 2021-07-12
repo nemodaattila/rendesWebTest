@@ -1,32 +1,35 @@
 <?php
 
 namespace euro;
-require_once "TeamData.php";
-require_once "TeamRosterCalculator.php";
-require_once "TeamRosters.php";
 
+/**
+ * Class AllTeamRosters collection of all team rosters
+ * @package euro
+ */
 class AllTeamRosters
 {
+    /**
+     * @var TeamData team names and coefficients
+     */
     private TeamData $teamData;
-    private TeamRosterCalculator $calculator;
 
+    /**
+     * @var array array of TeamRosters
+     */
     private array $rosters = [];
 
-    private static ?AllTeamRosters $instance=null;
+    /**
+     * @var AllTeamRosters|null singleton instance
+     */
+    private static ?AllTeamRosters $instance = null;
 
     public static function getInstance(): AllTeamRosters
     {
-        if (self::$instance === null)
-        {
+        if (self::$instance === null) {
             self::$instance = new AllTeamRosters();
         }
 
         return self::$instance;
-    }
-
-    public function getATeamRoster(int $key)
-    {
-        return $this->rosters[$key];
     }
 
     public function __construct()
@@ -35,19 +38,26 @@ class AllTeamRosters
         $this->generateTeams();
     }
 
-    private function generateTeams()
+    /**
+     * return's a team roster by team number
+     * @param int $teamNumber number of the team
+     * @return TeamRosters players of a team
+     */
+    public function getATeamRoster(int $teamNumber): TeamRosters
     {
-        $minMax=$this->teamData->getMinMax();
-        $this->calculator = new TeamRosterCalculator($minMax);
-        foreach ($this->teamData->getTeams() as $index => $team)
-        {
-            $this->rosters[$index]=new TeamRosters($team[0]);
-            $this->addRoster($this->calculator->calculateTeam($this->rosters[$index], $team));
-        }
+        return $this->rosters[$teamNumber];
     }
 
-    private function addRoster(TeamRosters $team)
+    /**
+     * generates all team rosters
+     */
+    private function generateTeams()
     {
-        $this->rosters[]=$team;
+        $minMax = $this->teamData->getMinMax();
+        $calculator = new TeamRosterCalculator($minMax);
+        foreach ($this->teamData->getTeams() as $index => $team) {
+            $this->rosters[$index] = new TeamRosters($team[0]);
+            $this->rosters[] = $calculator->calculateTeam($this->rosters[$index], $team);
+        }
     }
 }

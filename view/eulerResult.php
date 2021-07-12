@@ -6,15 +6,15 @@
 </head>
 <body>
 <?php
-$dv = \coreServices\DataForView::getInstance();
-if ($dv->getValue("success")) {
 
-    echo "The count of solutions for Project Auler Problem 753, with maximum prime ".$dv->getValue("prime")." is: " . $dv->getValue("result")."<br>";
-    echo "Elapsed time: ".$dv->getValue("time")[0].":".$dv->getValue("time")[1];
-}
-else
-{
-    echo "Error: ".$dv->getValue("result");
+use coreServices\DataForView;
+
+$dv = DataForView::getInstance();
+if ($dv->getValue("success")) {
+    echo "The count of solutions for Project Euler Problem 753, with maximum prime " . $dv->getValue("prime") . " is: " . $dv->getValue("result") . "<br>";
+    echo "Elapsed time: " . $dv->getValue("time")[0] . ":" . $dv->getValue("time")[1];
+} else {
+    echo "Error: " . $dv->getValue("result");
 }
 ?>
 </body>
