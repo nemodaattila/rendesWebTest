@@ -3,10 +3,10 @@
 Készítette: Nemoda Attila
 
 Készült: 
-Windows 10
-PHP 8
-PhpStorm
-WampServer
+Windows 10,
+PHP 8,
+PhpStorm,
+WampServer,
 
 A futtatáshoz composer szükséges
 
